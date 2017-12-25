@@ -15,7 +15,18 @@ import (
 	"time"
 
 	"text/template"
+
+	"github.com/spf13/pflag"
 )
+
+var opts struct {
+	Output string
+}
+
+func init() {
+	pflag.StringVarP(&opts.Output, "output", "o", "", "write generated changelog to this file (default: print to stdout)")
+	pflag.Parse()
+}
 
 func die(msg string, args ...interface{}) {
 	if !strings.HasSuffix(msg, "\\n") {
@@ -386,8 +397,24 @@ func main() {
 		changes = append(changes, vc)
 	}
 
-	err = templ.Execute(os.Stdout, changes)
+	wr := os.Stdout
+
+	if opts.Output != "" {
+		wr, err = os.Create(opts.Output)
+		if err != nil {
+			die("unable to create file %v: %v", opts.Output, err)
+		}
+	}
+
+	err = templ.Execute(wr, changes)
 	if err != nil {
 		die("error executing template: %v", err)
+	}
+
+	if opts.Output != "" {
+		err = wr.Close()
+		if err != nil {
+			die("error closing file %v: %v", opts.Output, err)
+		}
 	}
 }
