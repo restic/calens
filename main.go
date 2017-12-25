@@ -116,6 +116,7 @@ func readVersions(dir string) (result []Release) {
 // Entry describes a change.
 type Entry struct {
 	Type      string
+	TypeShort string
 	Title     string
 	Text      string
 	URLs      []*url.URL
@@ -130,6 +131,14 @@ var EntryTypePriority = map[string]int{
 	"Bugfix":      2,
 	"Change":      3,
 	"Enhancement": 4,
+}
+
+// EntryTypeAbbreviation contains the shortened entry types for the overview.
+var EntryTypeAbbreviation = map[string]string{
+	"Security":    "Sec",
+	"Bugfix":      "Fix",
+	"Change":      "Chg",
+	"Enhancement": "Enh",
 }
 
 // Valid returns an error if the entry is invalid in any way.
@@ -164,6 +173,7 @@ func readFile(filename string) (e Entry) {
 	data := strings.SplitN(title, ": ", 2)
 	if len(data) == 2 {
 		e.Type = capitalize(data[0])
+		e.TypeShort = EntryTypeAbbreviation[e.Type]
 		data = data[1:]
 	}
 	e.Title = capitalize(data[0])
@@ -323,7 +333,7 @@ are ordered by importance.
 Summary
 -------
 {{ range $entry := .Entries }}{{ with $entry }}
- * {{ .Type }} #{{ .PrimaryID }}: {{ .Title }}
+ * {{ .TypeShort }} #{{ .PrimaryID }}: {{ .Title }}
 {{- end }}{{ end }}
 
 Details
