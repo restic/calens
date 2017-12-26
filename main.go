@@ -338,8 +338,8 @@ var changelogTemplate = `
 Changelog for restic {{ .Version }} ({{ .Date }})
 =======================================
 
-The following sections list the changes in restic {{ .Version }}. The changes
-are ordered by importance.
+The following sections list the changes in restic {{ .Version }} relevant to
+restic users. The changes are ordered by importance.
 
 Summary
 -------
