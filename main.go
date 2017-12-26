@@ -337,40 +337,8 @@ var helperFuncs = template.FuncMap{
 	"capitalize": capitalize,
 }
 
-var changelogTemplate = `
-{{- range $changes := . }}{{ with $changes -}}
-Changelog for restic {{ .Version }} ({{ .Date }})
-=======================================
-
-The following sections list the changes in restic {{ .Version }} relevant to
-restic users. The changes are ordered by importance.
-
-Summary
--------
-{{ range $entry := .Entries }}{{ with $entry }}
- * {{ .TypeShort }} #{{ .PrimaryID }}: {{ .Title }}
-{{- end }}{{ end }}
-
-Details
--------
-{{ range $entry := .Entries }}{{ with $entry }}
- * {{ .Type }} #{{ .PrimaryID }}: {{ .Title }}
-   {{- if len .Text }}
-   {{ wrap .Text 80 3 }}
-   {{- end }}
-   {{- range $id := .Issues }}
-   https://github.com/restic/restic/issues/{{ $id -}}
-   {{ end -}}
-   {{ range $id := .PRs }}
-   https://github.com/restic/restic/pull/{{ $id -}}
-   {{ end }}
-{{ end }}{{ end }}
-
-{{ end }}{{ end -}}
-`
-
 func main() {
-	if filepath.IsAbs(opts.TemplateFile) {
+	if !filepath.IsAbs(opts.TemplateFile) {
 		opts.TemplateFile = filepath.Join(opts.InputDir, opts.TemplateFile)
 	}
 
