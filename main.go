@@ -130,14 +130,14 @@ func readVersions(dir string) (result []Release) {
 
 // Entry describes a change.
 type Entry struct {
-	Type      string
-	TypeShort string
-	Title     string
-	Text      string
-	URLs      []*url.URL
-	Issues    []string
-	PRs       []string
-	PrimaryID string
+	Type       string
+	TypeShort  string
+	Title      string
+	Paragraphs []string
+	URLs       []*url.URL
+	Issues     []string
+	PRs        []string
+	PrimaryID  string
 }
 
 // EntryTypePriority contains the list of valid types, order is priority in the changelog.
@@ -239,7 +239,9 @@ func readFile(filename string) (e Entry) {
 		}
 	}
 
-	e.Text = capitalize(strings.TrimSpace(strings.Join(text, "\n\n")))
+	for _, par := range text {
+		e.Paragraphs = append(e.Paragraphs, capitalize(strings.TrimSpace(par)))
+	}
 
 	e.Issues, e.PRs = githubIDs(e.URLs)
 
