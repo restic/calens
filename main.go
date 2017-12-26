@@ -208,7 +208,11 @@ func readFile(filename string) (e Entry) {
 			sect = ""
 			continue
 		}
-		sect += "\n" + sc.Text()
+
+		if sect != "" {
+			sect += " "
+		}
+		sect += strings.TrimSpace(sc.Text())
 	}
 
 	err = f.Close()
@@ -235,7 +239,7 @@ func readFile(filename string) (e Entry) {
 		}
 	}
 
-	e.Text = capitalize(strings.TrimSpace(strings.Join(text, "\\n")))
+	e.Text = capitalize(strings.TrimSpace(strings.Join(text, "\n\n")))
 
 	e.Issues, e.PRs = githubIDs(e.URLs)
 
