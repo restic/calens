@@ -20,11 +20,15 @@ import (
 )
 
 var opts struct {
-	Output string
+	Output       string
+	InputDir     string
+	TemplateFile string
 }
 
 func init() {
-	pflag.StringVarP(&opts.Output, "output", "o", "", "write generated changelog to this file (default: print to stdout)")
+	pflag.StringVarP(&opts.InputDir, "input", "i", "changelog", "read input files from `dir`")
+	pflag.StringVarP(&opts.Output, "output", "o", "", "write generated changelog to this `file` (default: print to stdout)")
+	pflag.StringVarP(&opts.TemplateFile, "template", "t", "CHANGELOG.tmpl", "read template from `file` (relative to input directory)")
 	pflag.Parse()
 }
 
@@ -366,7 +370,16 @@ Details
 `
 
 func main() {
-	templ, err := template.New("").Funcs(helperFuncs).Parse(changelogTemplate)
+	if filepath.IsAbs(opts.TemplateFile) {
+		opts.TemplateFile = filepath.Join(opts.InputDir, opts.TemplateFile)
+	}
+
+	buf, err := ioutil.ReadFile(opts.TemplateFile)
+	if err != nil {
+		die("unable to read template from %v: %v", opts.TemplateFile, err)
+	}
+
+	templ, err := template.New("").Funcs(helperFuncs).Parse(string(buf))
 	if err != nil {
 		die("unable to compile template: %v", err)
 	}
@@ -377,11 +390,11 @@ func main() {
 		Entries []Entry
 	}
 
-	versions := readVersions("changelog")
+	versions := readVersions(opts.InputDir)
 
 	var changes []VersionChanges
 
-	all := readEntries("changelog", versions)
+	all := readEntries(opts.InputDir, versions)
 	for _, ver := range versions {
 		vc := VersionChanges{
 			Version: ver.Version,
