@@ -251,14 +251,6 @@ func readFile(filename string) (e Entry) {
 
 	githubIDs(e.URLs, &e)
 
-	if len(e.Issues) > 0 {
-		e.PrimaryID = e.Issues[0]
-		e.PrimaryURL = e.IssueURLs[0]
-	} else if len(e.PRs) > 0 {
-		e.PrimaryID = e.PRs[0]
-		e.PrimaryURL = e.PRURLs[0]
-	}
-
 	err = e.Valid()
 	if err != nil {
 		die("file %v: %v", filename, err)
@@ -281,9 +273,19 @@ func githubIDs(urls []*url.URL, e *Entry) {
 		case strings.HasPrefix(url.Path, issuePath):
 			e.Issues = append(e.Issues, url.Path[len(issuePath):])
 			e.IssueURLs = append(e.IssueURLs, url)
+
+			if e.PrimaryID == "" {
+				e.PrimaryID = url.Path[len(issuePath):]
+				e.PrimaryURL = url
+			}
 		case strings.HasPrefix(url.Path, pullRequestPath):
 			e.PRs = append(e.PRs, url.Path[len(pullRequestPath):])
 			e.PRURLs = append(e.PRURLs, url)
+
+			if e.PrimaryID == "" {
+				e.PrimaryID = url.Path[len(pullRequestPath):]
+				e.PrimaryURL = url
+			}
 		default:
 			e.OtherURLs = append(e.OtherURLs, url)
 		}
