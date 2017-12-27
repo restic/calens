@@ -29,7 +29,7 @@ var opts struct {
 func init() {
 	pflag.StringVarP(&opts.InputDir, "input", "i", "changelog", "read input files from `dir`")
 	pflag.StringVarP(&opts.Output, "output", "o", "", "write generated changelog to this `file` (default: print to stdout)")
-	pflag.StringVarP(&opts.TemplateFile, "template", "t", "CHANGELOG.tmpl", "read template from `file` (relative to input directory)")
+	pflag.StringVarP(&opts.TemplateFile, "template", "t", filepath.FromSlash("changelog/CHANGELOG.tmpl"), "read template from `file`")
 	pflag.StringSliceVar(&opts.Versions, "version", nil, "only print `version` (separate multipe versions with commas)")
 	pflag.Parse()
 }
@@ -348,10 +348,6 @@ var helperFuncs = template.FuncMap{
 }
 
 func main() {
-	if !filepath.IsAbs(opts.TemplateFile) {
-		opts.TemplateFile = filepath.Join(opts.InputDir, opts.TemplateFile)
-	}
-
 	buf, err := ioutil.ReadFile(opts.TemplateFile)
 	if err != nil {
 		die("unable to read template from %v: %v", opts.TemplateFile, err)
