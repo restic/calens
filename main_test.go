@@ -66,6 +66,27 @@ https://github.com/restic/restic/pull/666666
 				PRs:       []string{"666666"},
 			},
 		},
+		{
+			`Enhancement: foo bar subject
+
+https://github.com/restic/rest-server/issues/232323
+https://github.com/restic/restic/issues/12345
+https://github.com/restic/restic/pull/666666
+`,
+			Entry{
+				Title:     "Foo bar subject",
+				Type:      "Enhancement",
+				TypeShort: "Enh",
+				PrimaryID: "12345",
+				Issues:    []string{"12345"},
+				PRs:       []string{"666666"},
+				URLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/rest-server/issues/232323"),
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+					parseURL(t, "https://github.com/restic/restic/pull/666666"),
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
