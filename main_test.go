@@ -85,6 +85,9 @@ https://github.com/restic/restic/pull/666666
 					parseURL(t, "https://github.com/restic/restic/issues/12345"),
 					parseURL(t, "https://github.com/restic/restic/pull/666666"),
 				},
+				OtherURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/rest-server/issues/232323"),
+				},
 			},
 		},
 	}

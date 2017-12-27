@@ -137,6 +137,7 @@ type Entry struct {
 	URLs       []*url.URL
 	Issues     []string
 	PRs        []string
+	OtherURLs  []*url.URL
 	PrimaryID  string
 }
 
@@ -243,7 +244,7 @@ func readFile(filename string) (e Entry) {
 		e.Paragraphs = append(e.Paragraphs, capitalize(strings.TrimSpace(par)))
 	}
 
-	e.Issues, e.PRs = githubIDs(e.URLs)
+	e.Issues, e.PRs, e.OtherURLs = githubIDs(e.URLs)
 
 	if len(e.Issues) > 0 {
 		e.PrimaryID = e.Issues[0]
@@ -263,22 +264,23 @@ const issuePath = "/restic/restic/issues/"
 const pullRequestPath = "/restic/restic/pull/"
 
 // githubIDs extracts all issue and pull request IDs from the urls.
-func githubIDs(urls []*url.URL) (issues, prs []string) {
+func githubIDs(urls []*url.URL) (issues, prs []string, others []*url.URL) {
 	for _, url := range urls {
 		if url.Host != "github.com" {
 			continue
 		}
 
-		if strings.HasPrefix(url.Path, issuePath) {
+		switch {
+		case strings.HasPrefix(url.Path, issuePath):
 			issues = append(issues, url.Path[len(issuePath):])
-		}
-
-		if strings.HasPrefix(url.Path, pullRequestPath) {
+		case strings.HasPrefix(url.Path, pullRequestPath):
 			prs = append(prs, url.Path[len(pullRequestPath):])
+		default:
+			others = append(others, url)
 		}
 	}
 
-	return issues, prs
+	return issues, prs, others
 }
 
 func readEntries(dir string, versions []Release) (entries map[string][]Entry) {
