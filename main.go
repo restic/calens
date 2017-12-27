@@ -23,12 +23,14 @@ var opts struct {
 	Output       string
 	InputDir     string
 	TemplateFile string
+	Versions     []string
 }
 
 func init() {
 	pflag.StringVarP(&opts.InputDir, "input", "i", "changelog", "read input files from `dir`")
 	pflag.StringVarP(&opts.Output, "output", "o", "", "write generated changelog to this `file` (default: print to stdout)")
 	pflag.StringVarP(&opts.TemplateFile, "template", "t", "CHANGELOG.tmpl", "read template from `file` (relative to input directory)")
+	pflag.StringSliceVar(&opts.Versions, "version", nil, "only print `version` (separate multipe versions with commas)")
 	pflag.Parse()
 }
 
@@ -71,7 +73,7 @@ func files(dir string) []string {
 	var files []string
 	for _, name := range names {
 		// skip the template and versions file
-		if name == "TEMPLATE" || name == "versions" {
+		if name == "TEMPLATE" || name == "releases" {
 			continue
 		}
 
@@ -89,9 +91,9 @@ type Release struct {
 
 var versionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 
-// readVersions reads the "versions" file in dir and returns the contents.
-func readVersions(dir string) (result []Release) {
-	data, err := ioutil.ReadFile(filepath.Join(dir, "versions"))
+// readReleases reads the "releases file in dir and returns the contents.
+func readReleases(dir string) (result []Release) {
+	data, err := ioutil.ReadFile(filepath.Join(dir, "releases"))
 	if err != nil {
 		die("unable to read file 'versions': %v", err)
 	}
@@ -366,12 +368,25 @@ func main() {
 		Entries []Entry
 	}
 
-	versions := readVersions(opts.InputDir)
+	allReleases := readReleases(opts.InputDir)
 
 	var changes []VersionChanges
+	var releases []Release
 
-	all := readEntries(opts.InputDir, versions)
-	for _, ver := range versions {
+	if len(opts.Versions) == 0 {
+		releases = allReleases
+	} else {
+		for _, rel := range allReleases {
+			for _, ver := range opts.Versions {
+				if ver == rel.Version {
+					releases = append(releases, rel)
+				}
+			}
+		}
+	}
+
+	all := readEntries(opts.InputDir, releases)
+	for _, ver := range releases {
 		vc := VersionChanges{
 			Version: ver.Version,
 			Entries: all[ver.Version],
