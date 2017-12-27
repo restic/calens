@@ -138,9 +138,12 @@ type Entry struct {
 	Paragraphs []string
 	URLs       []*url.URL
 	Issues     []string
+	IssueURLs  []*url.URL
 	PRs        []string
+	PRURLs     []*url.URL
 	OtherURLs  []*url.URL
 	PrimaryID  string
+	PrimaryURL *url.URL
 }
 
 // EntryTypePriority contains the list of valid types, order is priority in the changelog.
@@ -246,12 +249,14 @@ func readFile(filename string) (e Entry) {
 		e.Paragraphs = append(e.Paragraphs, capitalize(strings.TrimSpace(par)))
 	}
 
-	e.Issues, e.PRs, e.OtherURLs = githubIDs(e.URLs)
+	githubIDs(e.URLs, &e)
 
 	if len(e.Issues) > 0 {
 		e.PrimaryID = e.Issues[0]
+		e.PrimaryURL = e.IssueURLs[0]
 	} else if len(e.PRs) > 0 {
 		e.PrimaryID = e.PRs[0]
+		e.PrimaryURL = e.PRURLs[0]
 	}
 
 	err = e.Valid()
@@ -266,7 +271,7 @@ const issuePath = "/restic/restic/issues/"
 const pullRequestPath = "/restic/restic/pull/"
 
 // githubIDs extracts all issue and pull request IDs from the urls.
-func githubIDs(urls []*url.URL) (issues, prs []string, others []*url.URL) {
+func githubIDs(urls []*url.URL, e *Entry) {
 	for _, url := range urls {
 		if url.Host != "github.com" {
 			continue
@@ -274,15 +279,15 @@ func githubIDs(urls []*url.URL) (issues, prs []string, others []*url.URL) {
 
 		switch {
 		case strings.HasPrefix(url.Path, issuePath):
-			issues = append(issues, url.Path[len(issuePath):])
+			e.Issues = append(e.Issues, url.Path[len(issuePath):])
+			e.IssueURLs = append(e.IssueURLs, url)
 		case strings.HasPrefix(url.Path, pullRequestPath):
-			prs = append(prs, url.Path[len(pullRequestPath):])
+			e.PRs = append(e.PRs, url.Path[len(pullRequestPath):])
+			e.PRURLs = append(e.PRURLs, url)
 		default:
-			others = append(others, url)
+			e.OtherURLs = append(e.OtherURLs, url)
 		}
 	}
-
-	return issues, prs, others
 }
 
 func readEntries(dir string, versions []Release) (entries map[string][]Entry) {
