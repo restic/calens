@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -85,46 +84,73 @@ func files(dir string) []string {
 
 // Release is one release, with an optional release date.
 type Release struct {
+	path    string
 	Version string
 	Date    *time.Time
 }
 
-var versionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+var versionRegex = regexp.MustCompile(`^(\d+\.\d+\.\d+)(_(\d{4}-\d{2}-\d{2}))?$`)
 
-// readReleases reads the "releases file in dir and returns the contents.
+// readReleases lists the directory and parses all releases from the subdir
+// names there. A valid release subdir has the format "x.y.z_YYYY-MM-DD", the
+// underscore and date is optional (for unreleased versions). The resulting
+// slice is sorted by the release dates, starting with unreleased versions and
+// continuing with the other versions, newest first.
 func readReleases(dir string) (result []Release) {
-	data, err := ioutil.ReadFile(filepath.Join(dir, "releases"))
+	f, err := os.Open(dir)
 	if err != nil {
-		die("unable to read file 'versions': %v", err)
+		die("unable to open dir: %v", err)
 	}
 
-	sc := bufio.NewScanner(bytes.NewReader(data))
-	for sc.Scan() {
-		// ignore comments
-		if strings.HasPrefix(strings.TrimSpace(sc.Text()), "#") {
+	entries, err := f.Readdirnames(-1)
+	if err != nil {
+		die("unable to list directory: %v", err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		die("close dir: %v", err)
+	}
+
+	for _, name := range entries {
+		data := versionRegex.FindStringSubmatch(name)
+		if len(data) == 0 {
 			continue
 		}
 
-		data := strings.SplitN(sc.Text(), " ", 2)
-		ver := data[0]
-
-		if !versionRegex.MatchString(ver) {
-			die("version %q has wrong format", ver)
-		}
+		ver := data[1]
+		date := data[3]
 
 		rel := Release{
+			path:    filepath.Join(dir, name),
 			Version: ver,
 		}
 
-		if len(data) == 2 {
-			t, err := time.Parse("2006-01-02", data[1])
+		if date != "" {
+			t, err := time.Parse("2006-01-02", date)
 			if err != nil {
-				die("unable to parse date %q: %v", data[1], err)
+				die("unable to parse date %q: %v", date, err)
 			}
 			rel.Date = &t
 		}
 
 		result = append(result, rel)
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		if result[i].Date == nil {
+			return true
+		}
+
+		if result[j].Date == nil {
+			return false
+		}
+
+		return result[j].Date.Before(*result[i].Date)
+	})
+
+	for _, rel := range result {
+		V("rel: %v", rel)
 	}
 
 	return result
@@ -308,7 +334,7 @@ func readEntries(dir string, versions []Release) (entries map[string][]Entry) {
 	entries = make(map[string][]Entry)
 
 	for _, ver := range versions {
-		for _, file := range files(filepath.Join(dir, ver.Version)) {
+		for _, file := range files(ver.path) {
 			entries[ver.Version] = append(entries[ver.Version], readFile(file))
 		}
 	}
