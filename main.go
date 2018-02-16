@@ -162,10 +162,22 @@ var EntryTypeAbbreviation = map[string]string{
 	"Enhancement": "Enh",
 }
 
+// Punctuation contains all the characters that are not allowed as the last character in the title.
+const Punctuation = ".!?"
+
 // Valid returns an error if the entry is invalid in any way.
 func (e Entry) Valid() error {
 	if e.Type == "" {
 		return errors.New("entry title does not have a prefix, example: Bugfix: restore old behavior")
+	}
+
+	if e.Title == "" {
+		return errors.New("entry does not have a title")
+	}
+
+	lastChar := e.Title[len(e.Title)-1]
+	if strings.ContainsAny(string(lastChar), Punctuation) {
+		return fmt.Errorf("title ends with punctuation, e.g. a character out of %q", Punctuation)
 	}
 
 	if _, ok := EntryTypePriority[e.Type]; !ok {
@@ -193,11 +205,11 @@ func readFile(filename string) (e Entry) {
 	title := sc.Text()
 	data := strings.SplitN(title, ": ", 2)
 	if len(data) == 2 {
-		e.Type = capitalize(data[0])
+		e.Type = strings.TrimSpace(capitalize(data[0]))
 		e.TypeShort = EntryTypeAbbreviation[e.Type]
 		data = data[1:]
 	}
-	e.Title = capitalize(data[0])
+	e.Title = strings.TrimSpace(capitalize(data[0]))
 
 	var text []string
 	var sect string
