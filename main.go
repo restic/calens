@@ -149,10 +149,6 @@ func readReleases(dir string) (result []Release) {
 		return result[j].Date.Before(*result[i].Date)
 	})
 
-	for _, rel := range result {
-		V("rel: %v", rel)
-	}
-
 	return result
 }
 
