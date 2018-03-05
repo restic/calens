@@ -102,7 +102,7 @@ func readReleases(dir string) (result []Release) {
 		die("unable to open dir: %v", err)
 	}
 
-	entries, err := f.Readdirnames(-1)
+	entries, err := f.Readdir(-1)
 	if err != nil {
 		die("unable to list directory: %v", err)
 	}
@@ -112,9 +112,23 @@ func readReleases(dir string) (result []Release) {
 		die("close dir: %v", err)
 	}
 
-	for _, name := range entries {
-		data := versionRegex.FindStringSubmatch(name)
+	for _, entry := range entries {
+		if !entry.Mode().IsDir() {
+			continue
+		}
+
+		if entry.Name() == "unreleased" {
+			rel := Release{
+				path:    filepath.Join(dir, entry.Name()),
+				Version: "unreleased",
+			}
+			result = append(result, rel)
+			continue
+		}
+
+		data := versionRegex.FindStringSubmatch(entry.Name())
 		if len(data) == 0 {
+			die("invalid subdir name %v", filepath.Join(dir, entry.Name()))
 			continue
 		}
 
@@ -122,7 +136,7 @@ func readReleases(dir string) (result []Release) {
 		date := data[3]
 
 		rel := Release{
-			path:    filepath.Join(dir, name),
+			path:    filepath.Join(dir, entry.Name()),
 			Version: ver,
 		}
 
