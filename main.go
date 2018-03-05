@@ -438,6 +438,10 @@ func main() {
 
 	all := readEntries(opts.InputDir, releases)
 	for _, ver := range releases {
+		if len(all[ver.Version]) == 0 {
+			continue
+		}
+
 		vc := VersionChanges{
 			Version: ver.Version,
 			Entries: all[ver.Version],
