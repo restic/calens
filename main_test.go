@@ -76,9 +76,10 @@ https://github.com/restic/restic/pull/666666
 		{
 			`Enhancement: foo bar subject
 
-https://github.com/restic/rest-server/issues/232323
 https://github.com/restic/restic/issues/12345
+https://github.com/restic/rest-server/issues/232323
 https://github.com/restic/restic/pull/666666
+https://forum.restic.net/t/getting-last-successful-backup-time/531
 `,
 			Entry{
 				Title:      "Foo bar subject",
@@ -86,21 +87,23 @@ https://github.com/restic/restic/pull/666666
 				TypeShort:  "Enh",
 				PrimaryID:  "12345",
 				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
-				Issues:     []string{"12345"},
+				Issues:     []string{"12345", "232323"},
 				IssueURLs: []*url.URL{
 					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+					parseURL(t, "https://github.com/restic/rest-server/issues/232323"),
 				},
 				PRs: []string{"666666"},
 				PRURLs: []*url.URL{
 					parseURL(t, "https://github.com/restic/restic/pull/666666"),
 				},
 				URLs: []*url.URL{
-					parseURL(t, "https://github.com/restic/rest-server/issues/232323"),
 					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+					parseURL(t, "https://github.com/restic/rest-server/issues/232323"),
 					parseURL(t, "https://github.com/restic/restic/pull/666666"),
+					parseURL(t, "https://forum.restic.net/t/getting-last-successful-backup-time/531"),
 				},
 				OtherURLs: []*url.URL{
-					parseURL(t, "https://github.com/restic/rest-server/issues/232323"),
+					parseURL(t, "https://forum.restic.net/t/getting-last-successful-backup-time/531"),
 				},
 			},
 		},

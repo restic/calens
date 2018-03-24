@@ -307,31 +307,38 @@ func readFile(filename string) (e Entry) {
 	return e
 }
 
-const issuePath = "/restic/restic/issues/"
-const pullRequestPath = "/restic/restic/pull/"
+var (
+	issueRegexp       = regexp.MustCompile(`/.*/.*/issues/(\d+)`)
+	pullRequestRegexp = regexp.MustCompile(`/.*/.*/pull/(\d+)`)
+)
 
 // githubIDs extracts all issue and pull request IDs from the urls.
 func githubIDs(urls []*url.URL, e *Entry) {
 	for _, url := range urls {
 		if url.Host != "github.com" {
+			e.OtherURLs = append(e.OtherURLs, url)
 			continue
 		}
 
 		switch {
-		case strings.HasPrefix(url.Path, issuePath):
-			e.Issues = append(e.Issues, url.Path[len(issuePath):])
+		case issueRegexp.MatchString(url.Path):
+			data := issueRegexp.FindStringSubmatch(url.Path)
+			id := data[1]
+			e.Issues = append(e.Issues, id)
 			e.IssueURLs = append(e.IssueURLs, url)
 
 			if e.PrimaryID == "" {
-				e.PrimaryID = url.Path[len(issuePath):]
+				e.PrimaryID = id
 				e.PrimaryURL = url
 			}
-		case strings.HasPrefix(url.Path, pullRequestPath):
-			e.PRs = append(e.PRs, url.Path[len(pullRequestPath):])
+		case pullRequestRegexp.MatchString(url.Path):
+			data := pullRequestRegexp.FindStringSubmatch(url.Path)
+			id := data[1]
+			e.PRs = append(e.PRs, id)
 			e.PRURLs = append(e.PRURLs, url)
 
 			if e.PrimaryID == "" {
-				e.PrimaryID = url.Path[len(pullRequestPath):]
+				e.PrimaryID = id
 				e.PrimaryURL = url
 			}
 		default:
