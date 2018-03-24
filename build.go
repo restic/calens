@@ -46,7 +46,7 @@ import (
 
 // config contains the configuration for the program to build.
 var config = Config{
-	Name:       "restic",                                 // name of the program executable
+	Name:       "calens",                                 // name of the program executable
 	Namespace:  "github.com/restic/calens",               // subdir of GOPATH this repo/checkout needs to be at, e.g. "github.com/foo/bar"
 	Main:       "github.com/restic/calens",               // package path for the main package to build
 	Tests:      []string{"github.com/restic/calens/..."}, // tests to run
