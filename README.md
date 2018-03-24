@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/restic/calens.svg?branch=master)](https://travis-ci.org/restic/calens)
+
 # calens
 
 This program is a changelog generator that nicely prints a changelog file from
