@@ -61,9 +61,16 @@ https://github.com/restic/restic/pull/666666
 					parseURL(t, "https://github.com/restic/restic/issues/12345"),
 					parseURL(t, "https://github.com/restic/restic/pull/666666"),
 				},
-				PrimaryID: "12345",
-				Issues:    []string{"12345"},
-				PRs:       []string{"666666"},
+				PrimaryID:  "12345",
+				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				Issues:     []string{"12345"},
+				IssueURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
+				PRs: []string{"666666"},
+				PRURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/pull/666666"),
+				},
 			},
 		},
 		{
@@ -74,12 +81,19 @@ https://github.com/restic/restic/issues/12345
 https://github.com/restic/restic/pull/666666
 `,
 			Entry{
-				Title:     "Foo bar subject",
-				Type:      "Enhancement",
-				TypeShort: "Enh",
-				PrimaryID: "12345",
-				Issues:    []string{"12345"},
-				PRs:       []string{"666666"},
+				Title:      "Foo bar subject",
+				Type:       "Enhancement",
+				TypeShort:  "Enh",
+				PrimaryID:  "12345",
+				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				Issues:     []string{"12345"},
+				IssueURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
+				PRs: []string{"666666"},
+				PRURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/pull/666666"),
+				},
 				URLs: []*url.URL{
 					parseURL(t, "https://github.com/restic/rest-server/issues/232323"),
 					parseURL(t, "https://github.com/restic/restic/issues/12345"),
