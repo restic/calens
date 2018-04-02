@@ -89,6 +89,34 @@ type Release struct {
 	Date    *time.Time
 }
 
+// ReleaseSlice allows sorting a slice of releases by the release date
+// with Go < 1.8
+type ReleaseSlice []Release
+
+// Len is the number of elements in the collection.
+func (s ReleaseSlice) Len() int {
+	return len(s)
+}
+
+// Less reports whether the element with
+// index i should sort before the element with index j.
+func (s ReleaseSlice) Less(i, j int) bool {
+	if s[i].Date == nil {
+		return true
+	}
+
+	if s[j].Date == nil {
+		return false
+	}
+
+	return s[j].Date.Before(*s[i].Date)
+}
+
+// Swap swaps the elements with indexes i and j.
+func (s ReleaseSlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
 var versionRegex = regexp.MustCompile(`^(\d+\.\d+\.\d+)(_(\d{4}-\d{2}-\d{2}))?$`)
 
 // readReleases lists the directory and parses all releases from the subdir
@@ -151,17 +179,7 @@ func readReleases(dir string) (result []Release) {
 		result = append(result, rel)
 	}
 
-	sort.Slice(result, func(i, j int) bool {
-		if result[i].Date == nil {
-			return true
-		}
-
-		if result[j].Date == nil {
-			return false
-		}
-
-		return result[j].Date.Before(*result[i].Date)
-	})
+	sort.Sort(ReleaseSlice(result))
 
 	return result
 }
@@ -196,6 +214,26 @@ var EntryTypeAbbreviation = map[string]string{
 	"Bugfix":      "Fix",
 	"Change":      "Chg",
 	"Enhancement": "Enh",
+}
+
+// EntrySlice allows sorting a slice of releases by the priority of the entry
+// (as defined in EntryTypePriority) with Go < 1.8
+type EntrySlice []Entry
+
+// Len is the number of elements in the collection.
+func (s EntrySlice) Len() int {
+	return len(s)
+}
+
+// Less reports whether the element with
+// index i should sort before the element with index j.
+func (s EntrySlice) Less(i, j int) bool {
+	return EntryTypePriority[s[i].Type] < EntryTypePriority[s[j].Type]
+}
+
+// Swap swaps the elements with indexes i and j.
+func (s EntrySlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
 
 // Punctuation contains all the characters that are not allowed as the last character in the title.
@@ -358,9 +396,7 @@ func readEntries(dir string, versions []Release) (entries map[string][]Entry) {
 
 	// sort all entries according to priority, otherwise leave the original ordering
 	for ver, list := range entries {
-		sort.SliceStable(list, func(i, j int) bool {
-			return EntryTypePriority[list[i].Type] < EntryTypePriority[list[j].Type]
-		})
+		sort.Stable(EntrySlice(list))
 		entries[ver] = list
 	}
 
