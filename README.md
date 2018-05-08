@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/restic/calens.svg?branch=master)](https://travis-ci.org/restic/calens)
+[![Build Status](https://travis-ci.com/restic/calens.svg?branch=master)](https://travis-ci.com/restic/calens)
 
 # calens
 
