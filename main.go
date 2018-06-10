@@ -249,6 +249,10 @@ func (e Entry) Valid() error {
 		return errors.New("entry does not have a title")
 	}
 
+	if e.PrimaryID == "" {
+		return errors.New("primary issue ID not found")
+	}
+
 	lastChar := e.Title[len(e.Title)-1]
 	if strings.ContainsAny(string(lastChar), Punctuation) {
 		return fmt.Errorf("title ends with punctuation, e.g. a character out of %q", Punctuation)
