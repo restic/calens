@@ -23,11 +23,20 @@ func TestReadFile(t *testing.T) {
 		Entry
 	}{
 		{
-			"Bugfix: subject line",
+			"Bugfix: subject line\n\nhttps://github.com/restic/restic/issues/12345",
 			Entry{
-				Title:     "Subject line",
-				Type:      "Bugfix",
-				TypeShort: "Fix",
+				Title:      "Subject line",
+				Type:       "Bugfix",
+				TypeShort:  "Fix",
+				PrimaryID:  "12345",
+				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				URLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
+				Issues: []string{"12345"},
+				IssueURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
 			},
 		},
 		{
