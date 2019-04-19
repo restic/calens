@@ -11,6 +11,8 @@ install:
   - go get golang.org/x/tools/cmd/goimports
 
 script:
+  - unset GOPATH
+  - export GO111MODULE=on
   - go build
   - go test -v
   - go run build.go -v -T
