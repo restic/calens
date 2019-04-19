@@ -15,7 +15,6 @@ script:
   - export GO111MODULE=on
   - go build
   - go test -v
-  - go run build.go -v -T
   - diff <(goimports -d *.go) <(printf "")
 
 after_success:
