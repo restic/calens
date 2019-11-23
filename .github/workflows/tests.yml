@@ -1,0 +1,36 @@
+name: Build and tests
+on: [push]
+jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        go-version:
+          - 1.11.x
+          - 1.12.x
+          - 1.13.x
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+        id: go
+
+      - name: Get programs
+        run: |
+          export GOBIN=$HOME/bin
+          curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $HOME/bin v1.19.1
+
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Build
+        run: |
+          go build
+
+      - name: Run tests
+        run: |
+          export PATH=$HOME/bin:$PATH
+          go test -mod=vendor ./...
