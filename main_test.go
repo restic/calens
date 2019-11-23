@@ -143,5 +143,4 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 			}
 		})
 	}
-
 }

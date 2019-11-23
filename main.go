@@ -29,7 +29,7 @@ func init() {
 	pflag.StringVarP(&opts.InputDir, "input", "i", "changelog", "read input files from `dir`")
 	pflag.StringVarP(&opts.Output, "output", "o", "", "write generated changelog to this `file` (default: print to stdout)")
 	pflag.StringVarP(&opts.TemplateFile, "template", "t", filepath.FromSlash("changelog/CHANGELOG.tmpl"), "read template from `file`")
-	pflag.StringSliceVar(&opts.Versions, "version", nil, "only print `version` (separate multipe versions with commas)")
+	pflag.StringSliceVar(&opts.Versions, "version", nil, "only print `version` (separate multiple versions with commas)")
 	pflag.Parse()
 }
 
