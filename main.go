@@ -68,6 +68,11 @@ func files(dir string) []string {
 			continue
 		}
 
+		// skip dot files
+		if strings.HasPrefix(name, ".") {
+			continue
+		}
+
 		files = append(files, filepath.Join(dir, name))
 	}
 
