@@ -41,14 +41,6 @@ func die(msg string, args ...interface{}) {
 	os.Exit(1)
 }
 
-// V prints a debug message to stderr.
-func V(msg string, args ...interface{}) {
-	if !strings.HasSuffix(msg, "\\n") {
-		msg += "\n"
-	}
-	fmt.Fprintf(os.Stderr, msg, args...)
-}
-
 // files lists all file names in dir. The file name is split by _, and the first component is used as the key in the resulting map.
 func files(dir string) []string {
 	d, err := os.Open(dir)
