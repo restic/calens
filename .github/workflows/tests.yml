@@ -3,19 +3,13 @@ on: [push]
 jobs:
   build:
     name: Build
-    strategy:
-      matrix:
-        go-version:
-          - 1.11.x
-          - 1.12.x
-          - 1.13.x
     runs-on: ubuntu-latest
     steps:
 
-      - name: Set up Go ${{ matrix.go-version }}
+      - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.13.x
         id: go
 
       - name: Get programs
