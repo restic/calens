@@ -15,6 +15,7 @@ import (
 
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/spf13/pflag"
 )
 
@@ -404,9 +405,9 @@ func readEntries(dir string, versions []Release) (entries map[string][]Entry) {
 	return entries
 }
 
-// wrapText formats the text in a column smaller than width characters,
+// wrapIndent formats the text in a column smaller than width characters,
 // indenting each new line with indent spaces.
-func wrapText(text string, width, indent int) (result string, err error) {
+func wrapIndent(text string, width, indent int) (result string, err error) {
 	sc := bufio.NewScanner(strings.NewReader(text))
 	sc.Split(bufio.ScanWords)
 	cl := 0
@@ -442,7 +443,7 @@ func capitalize(text string) string {
 }
 
 var helperFuncs = template.FuncMap{
-	"wrap":       wrapText,
+	"wrapIndent": wrapIndent,
 	"capitalize": capitalize,
 }
 
@@ -452,7 +453,14 @@ func main() {
 		die("unable to read template from %v: %v", opts.TemplateFile, err)
 	}
 
-	templ, err := template.New("").Funcs(helperFuncs).Parse(string(buf))
+	funcMap := sprig.GenericFuncMap()
+
+	for i, m := range helperFuncs {
+		funcMap[i] = m
+	}
+
+	templ, err := template.New("").Funcs(funcMap).Parse(string(buf))
+
 	if err != nil {
 		die("unable to compile template: %v", err)
 	}
