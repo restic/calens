@@ -20,10 +20,12 @@ import (
 )
 
 var opts struct {
-	Output       string
-	InputDir     string
-	TemplateFile string
-	Versions     []string
+	Output           string
+	InputDir         string
+	TemplateFile     string
+	IssueRegex       string
+	PullRequestRegex string
+	Versions         []string
 }
 
 func init() {
@@ -31,6 +33,8 @@ func init() {
 	pflag.StringVarP(&opts.Output, "output", "o", "", "write generated changelog to this `file` (default: print to stdout)")
 	pflag.StringVarP(&opts.TemplateFile, "template", "t", filepath.FromSlash("changelog/CHANGELOG.tmpl"), "read template from `file`")
 	pflag.StringSliceVar(&opts.Versions, "version", nil, "only print `version` (separate multiple versions with commas)")
+	pflag.StringVarP(&opts.IssueRegex, "regex-issue", "", `/.*/.*/issues/(\d+)`, "regex to parse issue urls from scm `expr`")
+	pflag.StringVarP(&opts.PullRequestRegex, "regex-pr", "", `/.*/.*/pull/(\d+)`, "regex to parse pull request urls scm `expr`")
 	pflag.Parse()
 }
 
@@ -337,7 +341,7 @@ func readFile(filename string) (e Entry) {
 		e.Paragraphs = append(e.Paragraphs, capitalize(strings.TrimSpace(par)))
 	}
 
-	githubIDs(e.URLs, &e)
+	scmIDs(e.URLs, &e)
 
 	err = e.Valid()
 	if err != nil {
@@ -347,19 +351,12 @@ func readFile(filename string) (e Entry) {
 	return e
 }
 
-var (
-	issueRegexp       = regexp.MustCompile(`/.*/.*/issues/(\d+)`)
-	pullRequestRegexp = regexp.MustCompile(`/.*/.*/pull/(\d+)`)
-)
+// scmIDs extracts all issue and pull request IDs from the urls.
+func scmIDs(urls []*url.URL, e *Entry) {
+	issueRegexp := regexp.MustCompile(opts.IssueRegex)
+	pullRequestRegexp := regexp.MustCompile(opts.PullRequestRegex)
 
-// githubIDs extracts all issue and pull request IDs from the urls.
-func githubIDs(urls []*url.URL, e *Entry) {
 	for _, url := range urls {
-		if url.Host != "github.com" {
-			e.OtherURLs = append(e.OtherURLs, url)
-			continue
-		}
-
 		switch {
 		case issueRegexp.MatchString(url.Path):
 			data := issueRegexp.FindStringSubmatch(url.Path)
