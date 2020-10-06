@@ -34,7 +34,7 @@ func init() {
 	pflag.StringVarP(&opts.TemplateFile, "template", "t", filepath.FromSlash("changelog/CHANGELOG.tmpl"), "read template from `file`")
 	pflag.StringSliceVar(&opts.Versions, "version", nil, "only print `version` (separate multiple versions with commas)")
 	pflag.StringVarP(&opts.IssueRegex, "issue-regex", "", `/.*/.*/issues/(\d+)`, "`regex` for parsing SCM issue URLs")
-	pflag.StringVarP(&opts.PullRequestRegex, "pr-regex", "", `/.*/.*/pull/(\d+)`, "`regex` for parsing SCM pull requests URLs")
+	pflag.StringVarP(&opts.PullRequestRegex, "pr-regex", "", `/.*/.*/pull/(\d+)`, "`regex` for parsing SCM pull request URLs")
 	pflag.Parse()
 }
 
