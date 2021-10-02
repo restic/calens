@@ -261,7 +261,7 @@ func (e Entry) Valid() error {
 	}
 
 	if len(e.Type)+len(e.Title)+1 > 80 {
-		return errors.New("title is too long")
+		return errors.New("title is too long (max 80 characters)")
 	}
 
 	return nil
