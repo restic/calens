@@ -116,6 +116,27 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 				},
 			},
 		},
+		{
+			"Security: short and terse summary\n\n```\nexample\n   with\n       random spaces\n```\n\nLast block contains just\na few\nlinks.\n\nhttps://github.com/restic/restic/issues/12345",
+			Entry{
+				Title:     "Short and terse summary",
+				Type:      "Security",
+				TypeShort: "Sec",
+				Paragraphs: []string{
+					"```\nexample\n   with\n       random spaces\n```",
+					"Last block contains just a few links.",
+				},
+				URLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
+				PrimaryID:  12345,
+				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				Issues:     []string{"12345"},
+				IssueURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {

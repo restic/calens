@@ -293,12 +293,25 @@ func readFile(filename string) (e Entry) {
 
 	var text []string
 	var sect string
+	var verbatim bool // inside verbatim section
 	for sc.Scan() {
 		if sc.Err() != nil {
 			die("unable to read lines from %v: %v", filename, sc.Err())
 		}
 
-		if strings.TrimSpace(sc.Text()) == "" {
+		trimmedText := strings.TrimSpace(sc.Text())
+		if !verbatim && trimmedText == "```" {
+			// start new paragraph
+			if sect != "" {
+				text = append(text, sect)
+			}
+			sect = "```"
+			verbatim = true
+			continue
+		}
+
+		// ignore new lines inside verbatim section
+		if !verbatim && trimmedText == "" {
 			if sect != "" {
 				text = append(text, sect)
 			}
@@ -307,10 +320,25 @@ func readFile(filename string) (e Entry) {
 			continue
 		}
 
-		if sect != "" {
-			sect += " "
+		if verbatim {
+			if sect != "" {
+				sect += "\n"
+			}
+			sect += sc.Text()
+		} else {
+			if sect != "" {
+				sect += " "
+			}
+			sect += trimmedText
 		}
-		sect += strings.TrimSpace(sc.Text())
+
+		if verbatim && trimmedText == "```" {
+			verbatim = false
+		}
+	}
+
+	if verbatim {
+		die("unmatched verbatim tag in %v", filename)
 	}
 
 	err = f.Close()
@@ -420,6 +448,12 @@ func readEntries(dir string, versions []Release) (entries map[string][]Entry) {
 // wrapIndent formats the text in a column smaller than width characters,
 // indenting each new line with indent spaces.
 func wrapIndent(text string, width, indent int) (result string, err error) {
+	if strings.HasPrefix(text, "```") {
+		parts := strings.Split(text, "\n")
+		sep := "\n" + strings.Repeat(" ", indent)
+		return strings.Join(parts, sep), nil
+	}
+
 	sc := bufio.NewScanner(strings.NewReader(text))
 	sc.Split(bufio.ScanWords)
 	cl := 0
