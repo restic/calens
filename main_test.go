@@ -176,6 +176,7 @@ func TestWrapIndent(t *testing.T) {
 		{"Example string", 80, 4, "Example string"},
 		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", 70, 3, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n   eiusmod tempor incididunt ut labore et dolore magna aliqua."},
 		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", 55, 2, "Lorem ipsum dolor sit amet, consectetur adipiscing\n  elit, sed do eiusmod tempor incididunt ut labore et\n  dolore magna aliqua."},
+		{"```\nexample\n   with\n       random spaces\n```", 10, 3, "```\n   example\n      with\n          random spaces\n   ```"},
 	}
 
 	for _, test := range tests {
