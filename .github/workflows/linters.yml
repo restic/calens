@@ -1,25 +1,38 @@
 name: Style Checkers
-on: [push]
+on:
+  # run tests on push to master, but not when other branches are pushed to
+  push:
+    branches:
+      - master
+
+  # run tests for all pull requests
+  pull_request:
+
+env:
+  latest_go: "1.19.x"
+
 jobs:
-  build:
-    name: Check
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
-
-      - name: Set up Go
-        uses: actions/setup-go@v1
+      - name: Set up Go ${{ env.latest_go }}
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.13.x
-        id: go
-
-      - name: Install golang-ci
-        run: |
-          curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $HOME/bin v1.19.1
+          go-version: ${{ env.latest_go }}
 
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
-      - name: Run golang-ci
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.49
+          args: --verbose --timeout 5m
+
+      - name: Check go.mod/go.sum
         run: |
-          export PATH=$HOME/bin:$PATH
-          golangci-lint run --enable goimports,govet,misspell,stylecheck
+          echo "check if go.mod and go.sum are up to date"
+          go mod tidy
+          git diff --exit-code go.mod go.sum
