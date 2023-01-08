@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -194,7 +195,7 @@ type Entry struct {
 	PRs        []string
 	PRURLs     []*url.URL
 	OtherURLs  []*url.URL
-	PrimaryID  string
+	PrimaryID  int64
 	PrimaryURL *url.URL
 }
 
@@ -226,6 +227,9 @@ func (s EntrySlice) Len() int {
 // Less reports whether the element with
 // index i should sort before the element with index j.
 func (s EntrySlice) Less(i, j int) bool {
+	if s[i].Type == s[j].Type {
+		return s[i].PrimaryID < s[j].PrimaryID
+	}
 	return EntryTypePriority[s[i].Type] < EntryTypePriority[s[j].Type]
 }
 
@@ -247,7 +251,7 @@ func (e Entry) Valid() error {
 		return errors.New("entry does not have a title")
 	}
 
-	if e.PrimaryID == "" {
+	if e.PrimaryID == 0 {
 		return errors.New("primary issue ID not found")
 	}
 
@@ -352,6 +356,14 @@ var (
 	pullRequestRegexp = regexp.MustCompile(`/.*/.*/pull/(\d+)`)
 )
 
+func safeParseInt(str string) int64 {
+	val, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		die("unable to parse issue/PR ID %q: %v", str, err)
+	}
+	return val
+}
+
 // githubIDs extracts all issue and pull request IDs from the urls.
 func githubIDs(urls []*url.URL, e *Entry) {
 	for _, url := range urls {
@@ -367,8 +379,8 @@ func githubIDs(urls []*url.URL, e *Entry) {
 			e.Issues = append(e.Issues, id)
 			e.IssueURLs = append(e.IssueURLs, url)
 
-			if e.PrimaryID == "" {
-				e.PrimaryID = id
+			if e.PrimaryID == 0 {
+				e.PrimaryID = safeParseInt(id)
 				e.PrimaryURL = url
 			}
 		case pullRequestRegexp.MatchString(url.Path):
@@ -377,8 +389,8 @@ func githubIDs(urls []*url.URL, e *Entry) {
 			e.PRs = append(e.PRs, id)
 			e.PRURLs = append(e.PRURLs, url)
 
-			if e.PrimaryID == "" {
-				e.PrimaryID = id
+			if e.PrimaryID == 0 {
+				e.PrimaryID = safeParseInt(id)
 				e.PrimaryURL = url
 			}
 		default:

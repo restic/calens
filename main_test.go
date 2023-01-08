@@ -28,7 +28,7 @@ func TestReadFile(t *testing.T) {
 				Title:      "Subject line",
 				Type:       "Bugfix",
 				TypeShort:  "Fix",
-				PrimaryID:  "12345",
+				PrimaryID:  12345,
 				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
 				URLs: []*url.URL{
 					parseURL(t, "https://github.com/restic/restic/issues/12345"),
@@ -70,7 +70,7 @@ https://github.com/restic/restic/pull/666666
 					parseURL(t, "https://github.com/restic/restic/issues/12345"),
 					parseURL(t, "https://github.com/restic/restic/pull/666666"),
 				},
-				PrimaryID:  "12345",
+				PrimaryID:  12345,
 				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
 				Issues:     []string{"12345"},
 				IssueURLs: []*url.URL{
@@ -94,7 +94,7 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 				Title:      "Foo bar subject",
 				Type:       "Enhancement",
 				TypeShort:  "Enh",
-				PrimaryID:  "12345",
+				PrimaryID:  12345,
 				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
 				Issues:     []string{"12345", "232323"},
 				IssueURLs: []*url.URL{
