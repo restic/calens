@@ -1,30 +1,36 @@
 name: Build and tests
-on: [push]
+on:
+  # run tests on push to master, but not when other branches are pushed to
+  push:
+    branches:
+      - master
+
+  # run tests for all pull requests
+  pull_request:
+
 jobs:
   build:
-    name: Build
+    strategy:
+      matrix:
+        include:
+          - go: 1.19.x
+          - go: 1.12.x
+
+    name: Build Go ${{ matrix.go }}
     runs-on: ubuntu-latest
     steps:
-
-      - name: Set up Go
-        uses: actions/setup-go@v1
+      - name: Set up Go ${{ matrix.go }}
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.13.x
-        id: go
-
-      - name: Get programs
-        run: |
-          export GOBIN=$HOME/bin
-          curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $HOME/bin v1.19.1
+          go-version: ${{ matrix.go }}
 
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Build
         run: |
           go build
 
-      - name: Run tests
+      - name: Run Tests
         run: |
-          export PATH=$HOME/bin:$PATH
           go test ./...
