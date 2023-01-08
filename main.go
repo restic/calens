@@ -462,7 +462,14 @@ func wrapIndent(text string, width, indent int) (result string, err error) {
 			return "", sc.Err()
 		}
 
-		if cl+len(sc.Text()) > width {
+		spaceLen := 0
+		if cl > 0 {
+			// account for space between words, if there's already a word on the
+			// current line
+			spaceLen = 1
+		}
+
+		if cl+spaceLen+len(sc.Text()) > width {
 			result += "\n"
 			result += strings.Repeat(" ", indent)
 			cl = 0
@@ -470,6 +477,7 @@ func wrapIndent(text string, width, indent int) (result string, err error) {
 
 		if cl > 0 {
 			result += " "
+			cl++
 		}
 		result += sc.Text()
 		cl += len(sc.Text())

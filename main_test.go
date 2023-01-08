@@ -165,3 +165,29 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 		})
 	}
 }
+
+func TestWrapIndent(t *testing.T) {
+	var tests = []struct {
+		In     string
+		Width  int
+		Indent int
+		Out    string
+	}{
+		{"Example string", 80, 4, "Example string"},
+		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", 70, 3, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n   eiusmod tempor incididunt ut labore et dolore magna aliqua."},
+		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", 55, 2, "Lorem ipsum dolor sit amet, consectetur adipiscing\n  elit, sed do eiusmod tempor incididunt ut labore et\n  dolore magna aliqua."},
+	}
+
+	for _, test := range tests {
+		t.Run("", func(t *testing.T) {
+			res, err := wrapIndent(test.In, test.Width, test.Indent)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := deep.Equal(res, test.Out); diff != nil {
+				t.Error(diff)
+			}
+		})
+	}
+}
