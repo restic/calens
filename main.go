@@ -16,6 +16,7 @@ import (
 
 	"text/template"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/spf13/pflag"
 )
@@ -116,7 +117,7 @@ func (s ReleaseSlice) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
-var versionRegex = regexp.MustCompile(`^(\d+\.\d+\.\d+)(_(\d{4}-\d{2}-\d{2}))?$`)
+var versionRegex = regexp.MustCompile(`^([^_]+)(?:_(\d{4}-\d{2}-\d{2}))?$`)
 
 // readReleases lists the directory and parses all releases from the subdir
 // names there. A valid release subdir has the format "x.y.z_YYYY-MM-DD", the
@@ -159,12 +160,15 @@ func readReleases(dir string) (result []Release) {
 			continue
 		}
 
-		ver := data[1]
-		date := data[3]
+		ver, err := semver.NewVersion(data[1])
+		if err != nil {
+			die("invalid subdir name %v. Parsing semver returned error: %v", filepath.Join(dir, entry.Name()), err)
+		}
+		date := data[2]
 
 		rel := Release{
 			path:    filepath.Join(dir, entry.Name()),
-			Version: ver,
+			Version: ver.String(),
 		}
 
 		if date != "" {

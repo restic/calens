@@ -4,9 +4,12 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
+	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/go-test/deep"
+	"github.com/stretchr/testify/assert"
 )
 
 func parseURL(t testing.TB, s string) *url.URL {
@@ -15,6 +18,10 @@ func parseURL(t testing.TB, s string) *url.URL {
 		t.Fatal(err)
 	}
 	return url
+}
+
+func ptrTime(v time.Time) *time.Time {
+	return &v
 }
 
 func TestReadFile(t *testing.T) {
@@ -163,6 +170,36 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 				t.Error(diff)
 			}
 		})
+	}
+}
+func TestReadReleases(t *testing.T) {
+	type testData struct {
+		Date       *time.Time
+		FolderName string
+		Version    string
+	}
+	dir := t.TempDir()
+	releases := []testData{
+		{Date: nil, FolderName: "unreleased", Version: "unreleased"},
+		{Date: ptrTime(time.Date(2023, time.November, 12, 0, 0, 0, 0, time.UTC)), FolderName: "2.0.0-rc.1+build.12345_2023-11-12", Version: "2.0.0-rc.1+build.12345"},
+		{Date: ptrTime(time.Date(2023, time.November, 10, 0, 0, 0, 0, time.UTC)), FolderName: "0.0.1-rc.1_2023-11-10", Version: "0.0.1-rc.1"},
+		{Date: ptrTime(time.Date(2023, time.November, 10, 0, 0, 0, 0, time.UTC)), FolderName: "1.0.1_2023-11-10", Version: "1.0.1"},
+		{Date: ptrTime(time.Date(2023, time.November, 9, 0, 0, 0, 0, time.UTC)), FolderName: "4.0.0_2023-11-09", Version: "4.0.0"},
+		{Date: ptrTime(time.Date(2023, time.November, 8, 0, 0, 0, 0, time.UTC)), FolderName: "1.0.2-alpha.10_2023-11-08", Version: "1.0.2-alpha.10"},
+		{Date: ptrTime(time.Date(2023, time.September, 7, 0, 0, 0, 0, time.UTC)), FolderName: "1.0.0_2023-09-07", Version: "1.0.0"},
+		{Date: ptrTime(time.Date(2023, time.May, 1, 0, 0, 0, 0, time.UTC)), FolderName: "12.10.21_2023-05-01", Version: "12.10.21"},
+	}
+	for _, release := range releases {
+		err := os.Mkdir(filepath.Join(dir, release.FolderName), 0750)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	parsedReleases := readReleases(dir)
+	// test the sorting and the parsing of the folder names
+	for i, parsedRelease := range parsedReleases {
+		assert.Equal(t, releases[i].Date, parsedRelease.Date)
+		assert.Equal(t, releases[i].Version, parsedRelease.Version)
 	}
 }
 
