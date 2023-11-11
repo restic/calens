@@ -116,6 +116,27 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 				},
 			},
 		},
+		{
+			"Security: short and terse summary\n\n```\nexample\n   with\n       random spaces\n```\n\nLast block contains just\na few\nlinks.\n\nhttps://github.com/restic/restic/issues/12345",
+			Entry{
+				Title:     "Short and terse summary",
+				Type:      "Security",
+				TypeShort: "Sec",
+				Paragraphs: []string{
+					"```\nexample\n   with\n       random spaces\n```",
+					"Last block contains just a few links.",
+				},
+				URLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
+				PrimaryID:  12345,
+				PrimaryURL: parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				Issues:     []string{"12345"},
+				IssueURLs: []*url.URL{
+					parseURL(t, "https://github.com/restic/restic/issues/12345"),
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -139,6 +160,33 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 
 			entry := readFile(f.Name())
 			if diff := deep.Equal(test.Entry, entry); diff != nil {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
+func TestWrapIndent(t *testing.T) {
+	var tests = []struct {
+		In     string
+		Width  int
+		Indent int
+		Out    string
+	}{
+		{"Example string", 80, 4, "Example string"},
+		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", 70, 3, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n   eiusmod tempor incididunt ut labore et dolore magna aliqua."},
+		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", 55, 2, "Lorem ipsum dolor sit amet, consectetur adipiscing\n  elit, sed do eiusmod tempor incididunt ut labore et\n  dolore magna aliqua."},
+		{"```\nexample\n   with\n       random spaces\n```", 10, 3, "```\n   example\n      with\n          random spaces\n   ```"},
+	}
+
+	for _, test := range tests {
+		t.Run("", func(t *testing.T) {
+			res, err := wrapIndent(test.In, test.Width, test.Indent)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := deep.Equal(res, test.Out); diff != nil {
 				t.Error(diff)
 			}
 		})
