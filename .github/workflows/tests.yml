@@ -13,19 +13,19 @@ jobs:
     strategy:
       matrix:
         include:
-          - go: 1.19.x
+          - go: 1.21.x
           - go: 1.12.x
 
     name: Build Go ${{ matrix.go }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go ${{ matrix.go }}
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build
         run: |
