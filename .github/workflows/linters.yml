@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  latest_go: "1.19.x"
+  latest_go: "1.21.x"
 
 jobs:
   lint:
@@ -17,18 +17,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go ${{ env.latest_go }}
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ env.latest_go }}
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.49
+          version: v1.55
           args: --verbose --timeout 5m
 
       - name: Check go.mod/go.sum

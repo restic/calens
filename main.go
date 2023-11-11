@@ -427,7 +427,7 @@ func githubIDs(urls []*url.URL, e *Entry) {
 	}
 }
 
-func readEntries(dir string, versions []Release) (entries map[string][]Entry) {
+func readEntries(versions []Release) (entries map[string][]Entry) {
 	entries = make(map[string][]Entry)
 
 	for _, ver := range versions {
@@ -542,7 +542,7 @@ func main() {
 		}
 	}
 
-	all := readEntries(opts.InputDir, releases)
+	all := readEntries(releases)
 	for _, ver := range releases {
 		if len(all[ver.Version]) == 0 {
 			continue
