@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-test/deep"
-	"github.com/stretchr/testify/assert"
 )
 
 func parseURL(t testing.TB, s string) *url.URL {
@@ -198,8 +197,12 @@ func TestReadReleases(t *testing.T) {
 	parsedReleases := readReleases(dir)
 	// test the sorting and the parsing of the folder names
 	for i, parsedRelease := range parsedReleases {
-		assert.Equal(t, releases[i].Date, parsedRelease.Date)
-		assert.Equal(t, releases[i].Version, parsedRelease.Version)
+		if ((releases[i].Date == nil || parsedRelease.Date == nil) && releases[i].Date != parsedRelease.Date) || (releases[i].Date != nil && !releases[i].Date.Equal(*parsedRelease.Date)) {
+			t.Fatalf("date mismatch, expected %v, got %v", releases[i].Date, parsedRelease.Date)
+		}
+		if releases[i].Version != parsedRelease.Version {
+			t.Fatalf("version mismatch, expected %v, got %v", releases[i].Version, parsedRelease.Version)
+		}
 	}
 }
 
