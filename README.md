@@ -13,19 +13,12 @@ cd calens
 CGO_ENABLED=0 go install
 ```
 
-Note that you need to to update the local repo and rerun installation when a new calens release becomes avialable.
-```
-cd calens
-git pull --rebase origin master
-CGO_ENABLED=0 go install
-```
+# Creating a Changelog
 
-# Testing
+To create a changlog.md file using calens, change into a repository containing a `changelog`
+folder similar to that of [restic](https://github.com/restic/restic/tree/master/changelog).
+Then run `calens -o changlog.md` from within the repository.
 
-To test calens and create a `test-changlog.md` file, change into a repository containing
-a `changelog` folder similar to that of [restic](https://github.com/restic/restic/tree/master/changelog).
-Then run `calens -o test-changlog.md` from within the repository.
-
-When done, open the created changelog with a browser to see the rendered content.
+When done, open the created changelog to see the generated changelog.
 
 Run `calens --help` for more options.
