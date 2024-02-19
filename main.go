@@ -304,12 +304,12 @@ func readFile(filename string) (e Entry) {
 		}
 
 		trimmedText := strings.TrimSpace(sc.Text())
-		if !verbatim && trimmedText == "```" {
+		if !verbatim && strings.HasPrefix(trimmedText, "```") {
 			// start new paragraph
 			if sect != "" {
 				text = append(text, sect)
 			}
-			sect = "```"
+			sect = trimmedText
 			verbatim = true
 			continue
 		}

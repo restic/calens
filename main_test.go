@@ -91,6 +91,8 @@ https://github.com/restic/restic/pull/666666
 		{
 			`Enhancement: foo bar subject
 
+` + "```bash\necho 'test code block with type'\n```" + `
+
 https://github.com/restic/restic/issues/12345
 https://github.com/restic/rest-server/issues/232323
 https://github.com/restic/restic/pull/666666
@@ -98,6 +100,7 @@ https://forum.restic.net/t/getting-last-successful-backup-time/531
 `,
 			Entry{
 				Title:      "Foo bar subject",
+				Paragraphs: []string{"```bash\necho 'test code block with type'\n```"},
 				Type:       "Enhancement",
 				TypeShort:  "Enh",
 				PrimaryID:  12345,
